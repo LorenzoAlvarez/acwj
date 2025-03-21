@@ -13,7 +13,6 @@ struct Scanner {
     var _putback: Character = "\0"
     var _in_file: FileHandle
     
-    
     init(file_path: String) {
         if let fileHandle = FileHandle(forReadingAtPath: file_path) {
             _in_file = fileHandle
@@ -37,6 +36,7 @@ struct Scanner {
         
         switch c {
         case "\0":
+            token.type = TokenType.T_EOF
             return 0
         case "+":
             token.type = TokenType.T_PLUS
@@ -51,13 +51,12 @@ struct Scanner {
             if c.isNumber {
                 token.int_value = scanint(c: &c)
                 token.type = TokenType.T_INTLIT
+                print(token.int_value)
             }
             else {
                 print("Unrecognised character \(c) on line \(_line)")
             }
-            
         }
-        
         return 1
     }
     
