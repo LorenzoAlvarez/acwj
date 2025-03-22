@@ -16,28 +16,44 @@ func primary(scanner: inout Scanner, token: inout Token) throws -> ASTnode  {
 }
 
 /// Return an AST tree whose root is a binary operator
-func binaryexpr(scanner: inout Scanner, token: inout Token) throws ->  ASTnode {
+/// Parapeter ptp is the previous toke's precedence
+func binaryexpr(scanner: inout Scanner, token: inout Token, ptp: Int) throws ->  ASTnode {
     
-    // Get the integer literal on the left
+    // Get the integer literal on the left.
     // Fetch the next token at the same time.
+    var left = try! primary(scanner: &scanner, token: &token)
     
-    let left = try! primary(scanner: &scanner, token: &token)
-    
-    // If no token left, retun just the left node
-    if token.type == TokenType.T_EOF {
+    // If no tokens left, return just the left node
+    var tokentype = token.type
+    if tokentype == .T_EOF {
         return left
     }
-    // Convert the token into a node type
     
-    let nodetype = try! NodeType.artihop(token_type: token.type)
+    // While the precedene ofthis token is
+    // more than that of the previous token precedence
+    while try! TokenType.op_precedence(type: tokentype) > ptp {
+        // Fetch in the next integer literal
+        scanner.scan(token: &token)
+        
+        // Recursively call binexpr() with the
+        // precedence of our token to build a sub-tree
+        let right = try! binaryexpr(scanner: &scanner, token: &token, ptp: TokenType.get_precedence(type: tokentype))
+        
+        // Join taht sub-tree with ours. Convert the token
+        // into an AST operation at the time
+        left = ASTnode.mkastnode(operation: try! NodeType.artihop(token_type: tokentype), left: left, right: right, int_value: 0)
+        
+        // Update the details of the current token.
+        // If no tokens left, return just the left node
+        tokentype = token.type
+        if tokentype == .T_EOF {
+            return left
+        }
+    }
     
-    // Get the next token in
-    _ = scanner.scan(token: &token)
-    
-    // Recursively get the right-hand tree
-    let right = try! binaryexpr(scanner: &scanner, token: &token)
-    
-    return ASTnode.mkastnode(operation: nodetype, left:left, right: right, int_value: 0)
+    // Return the tree we have when the precedence
+    // is the same or lower
+    return left
     
 }
 

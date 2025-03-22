@@ -33,6 +33,36 @@ enum TokenType {
             return "unknown"
         }
     }
+    
+    static func get_precedence(type: TokenType) -> Int{
+        switch type {
+        case .T_EOF:
+            return 0
+        case .T_PLUS:
+            return 10
+        case .T_MINUS:
+            return 10
+        case .T_STAR:
+            return 20
+        case .T_SLASH:
+            return 20
+        case .T_INTLIT:
+            return 0
+        default:
+            return 0
+        }
+    }
+    
+    static func op_precedence(type: TokenType) throws -> Int{
+        let prec = self.get_precedence(type: type)
+        if prec == 0 {
+            print("Syntax error getting the token \(type)")
+            throw fatalError()
+        }
+        return prec
+    }
+    
+    
 }
 
 // Token structures

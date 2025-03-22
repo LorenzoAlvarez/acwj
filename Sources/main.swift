@@ -8,7 +8,7 @@ import Foundation
 private func scanfile(scanner: inout Scanner) {
     var token = Token(type: TokenType.T_UNKNOWN, int_value: 0)
     _ = scanner.scan(token: &token)
-    let node = try! binaryexpr(scanner: &scanner, token: &token)
+    let node = try! binaryexpr(scanner: &scanner, token: &token, ptp: 0)
     print("\(interpretAST(node: node))")
 }
 
